@@ -1,37 +1,82 @@
-#include <iostream>
-#include <omp.h>
-
-int num_steps = 100000;
-double step;
-#define NUM_THREADS 2
+#include<iostream>
+#include<omp.h>
+#include<stdlib.h>
 
 using namespace std;
+
+#define MAXIMUM 65536
+
 int main()
 {
-    int i, nthreads;
-    double pi = 0.0, sum[NUM_THREADS];
-    step = 1.0 / (double)num_steps;
+    int *array, N, ParallelMax, SerialMax;
 
-    #pragma omp parallel
+    cout << "Enter number of elements: ";
+    cin >> N;
+
+    if (N <= 0)
     {
-        int i, id, nt;
-        double x;
+        cout << "The array elements cannot be stored." << endl;
+        exit(1);
+    }
 
-        id = omp_get_thread_num();
-        nt = omp_get_num_threads();
+    array = (int*)malloc(sizeof(int) * N);
 
-        if(id == 0) nthreads = nt;
-        sum[id] = 0.0;
-        for(i = id; i < num_steps; i+=nt)
+    srand(MAXIMUM);
+
+    for(int i = 0; i < N; i++)
+        array[i] = rand();
+    
+    if (N == 1)
+    {
+        cout << "The largest element of the array is = " << array[0] << endl;
+        exit(1);
+    }
+
+    ParallelMax = 0;
+
+    #pragma omp parallel for
+    for (int i = 0; i < N; i++)
+    {
+        if (array[i] > ParallelMax)
         {
-            x = (i + 0.5) * step;
-            sum[id] += 4.0 / (1.0 + x * x);
+            #pragma omp critical
+            if (array[i] > ParallelMax)
+            {
+                ParallelMax = array[i];
+            }
+            
+        }
+        
+    }
+
+    SerialMax = 0;
+
+    for (int i = 0; i < N; i++)
+    {
+        if (array[i] > SerialMax)
+        {
+            SerialMax = array[i];
         }
     }
-    for(int i = 0; i < nthreads; i++) {
-        pi += sum[i] * step;
+
+    cout << "The input array elements are" << endl;
+    for (int i = 0; i < N; i++)
+    {
+        cout << array[i] << "\t";
     }
-    cout << "Pi = " << pi << endl;
+    cout << endl;
+
+    if (ParallelMax == SerialMax)
+        cout << "The Max value is same from Serial and Parallel execution." << endl;
+    else
+    {
+        cout << "The Max value id not the same from Serial and Parallel execution." << endl;
+        exit(1);
+    }
+    
+    cout << "The Largest number is = " << ParallelMax << endl;
+    
+    free(array);
 
     return 0;
 }

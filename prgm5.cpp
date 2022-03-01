@@ -32,6 +32,7 @@ int main()
     cout << "The Input Array Is\n";
     for (i = 0; i < N; i++)
         cout << "\t" << array[i];
+    cout << endl;
 
     /* OpenMP Parallel For Directive And Critical Section */
     #pragma omp parallel for
