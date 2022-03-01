@@ -1,3 +1,5 @@
+//  Calculate the sum of given numbers in parallel using MPI
+
 #include <stdio.h>
 #include "mpi.h"
 

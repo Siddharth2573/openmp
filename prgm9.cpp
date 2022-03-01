@@ -1,3 +1,5 @@
+//  Program that implements MPI Collective Communications
+
 #include <stdio.h>
 #include "mpi.h"
 
